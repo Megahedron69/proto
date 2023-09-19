@@ -1,0 +1,178 @@
+<html>
+  <head>
+    <title>kachradhundo.com</title>
+  </head>
+  <style>
+    .space-button-container {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+    .space-button-container input[type="file"] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .space-button-container .space-button {
+      background-color: #141414;
+      color: #ffffff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: "Arial", sans-serif;
+      font-size: 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .space-button-container:hover .space-button {
+      background-color: #1e1e1e;
+    }
+    .space-button .space-icon {
+      font-family: "Arial", sans-serif;
+      font-size: 24px;
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+  </style>
+  <body
+    style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin-top: 25px;
+      background-color: white;
+      z-index: -1;
+      flex-wrap: nowrap;
+      background-image: url('https://cdn.dribbble.com/users/31752/screenshots/4032680/media/02fd39df5ed0708502d4f4243c88531f.jpg?resize=800x600&vertical=center');
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: scroll;
+    "
+  >
+    <div
+      style="
+        width: 600px;
+        height: 600px;
+        background-color: #fff;
+        margin: 20px;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        flex-direction: column;
+        flex-wrap: nowrap;
+      "
+    >
+      <img
+        id="imagePreview"
+        style="height: 50%; width: 50%; border-radius: 14px; outline: none"
+        ;
+      />
+      <div
+        style="
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          flex-direction: column;
+          flex-wrap: nowrap;
+        "
+      >
+        <div class="space-button-container">
+          <input id="imageUpload" type="file" />
+          <label
+            for="imageUpload"
+            class="space-button"
+            style="
+              display: flex;
+              flex-wrap: nowrap;
+              justify-content: space-evenly;
+              align-items: center;
+              margin-left: 30px;
+            "
+          >
+            <span
+              class="space-icon"
+              style="position: relative; left: 0; top: 15px"
+              >🚀</span
+            >
+            Browse Space
+          </label>
+        </div>
+        <div style="color: red; margin-left: 30px">
+          Wait for some time before smashing the submit button harsh
+        </div>
+        <div id="label-container" style="margin-left: 30px"></div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+    <script type="text/javascript">
+      const URL = "https://teachablemachine.withgoogle.com/models/B5PIhU3le/";
+      let model, labelContainer, maxPredictions;
+
+      async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) {
+          labelContainer.appendChild(document.createElement("div"));
+        }
+      }
+
+      async function predict() {
+        var image = document.getElementById("imagePreview");
+        const prediction = await model.predict(image, false);
+        for (let i = 0; i < maxPredictions; i++) {
+          const classPrediction =
+            prediction[i].className +
+            ": " +
+            prediction[i].probability.toFixed(2) * 100;
+          +"%";
+          labelContainer.childNodes[i].innerHTML = classPrediction;
+        }
+      }
+
+      function getRandomColor() {
+        const letters = "0123456789ABCDEF";
+        let color = "#";
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      function readURL(input) {
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            $("#imagePreview").attr("src", e.target.result);
+            $("#imagePreview").hide();
+            $("#imagePreview").fadeIn(650);
+          };
+          reader.readAsDataURL(input.files[0]);
+          init().then(() => {
+            predict();
+          });
+        }
+      }
+      $("#imageUpload").change(function () {
+        readURL(this);
+      });
+    </script>
+  </body>
+</html>
